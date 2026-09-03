@@ -1,0 +1,17 @@
+{
+  "name": "vm-play-imformer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Monitors Google Play listings and sends WhatsApp alerts when they appear or disappear.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"tests/**/*.test.js\"",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "google-auth-library": "^11.0.2"
+  }
+}
