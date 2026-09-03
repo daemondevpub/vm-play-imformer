@@ -215,15 +215,37 @@ Fix and resubmit; there is no penalty.
 
 ## Part 3 — GitHub repository and secrets
 
-### 3.1 Create the repository
+### 3.1 Create the repository under the separate account
 
-1. Create a new repository on GitHub named `vm-play-imformer`.
+This repository must **not** live under the primary `Master-Vasu` account. Sign
+in to (or create) the separate GitHub account first, then:
+
+1. Create a new repository named `vm-play-imformer` under that account.
 2. Visibility: **Public**. This is required for unlimited free Actions minutes at
    a 10-minute cadence.
 
 > Public is safe here. No package names, no app names and no credentials live in
 > the repository. The app list is in your Google Sheet and the credentials are in
 > encrypted secrets.
+
+**Keeping the accounts genuinely separate.** A public repo exposes more than its
+files, so three things have to line up or the two accounts become linkable:
+
+- **Commit identity.** Every commit records an author name and email, publicly
+  and permanently. This repository sets a local identity of
+  `play-store-monitor <play-store-monitor@users.noreply.github.com>` so it never
+  inherits the machine's global git config. Verify with `git config user.email`
+  before the first push; if it shows a personal address, fix it before pushing.
+- **Push credentials.** The `gh` CLI on this machine is signed in as
+  `Master-Vasu` over SSH. Pushing this repo needs the separate account's
+  credentials instead. The cleanest route is a fine-grained personal access
+  token created on the new account, with **Contents: read and write** on this
+  one repository, used over HTTPS. Do not add the new account as a second
+  identity on the same SSH key, as one key cannot belong to two accounts.
+- **Notification email.** Workflow failure emails go to the new account's
+  address. That email is the alerting channel for "Google is throttling us" or
+  "a credential expired", so use an inbox that is actually read, or set up
+  forwarding.
 
 ### 3.2 Add the secrets
 

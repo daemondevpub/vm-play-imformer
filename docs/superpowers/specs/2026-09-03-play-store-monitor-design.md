@@ -217,6 +217,14 @@ unknown 2 · changes 2`. Identifying detail appears only in local dry-run output
 Credentials live in GitHub Actions secrets. The repository holds only generic
 code.
 
+**Separate GitHub account.** The repository is hosted under a dedicated account,
+not the primary one. Because commit metadata is public and permanent, the repo
+carries a local git identity of
+`play-store-monitor <play-store-monitor@users.noreply.github.com>` so it cannot
+inherit a personal name or email from global git config. Push credentials must
+belong to the separate account; the failure-notification email that serves as
+the alerting channel arrives in that account's inbox.
+
 **Cron drift.** GitHub's scheduled workflows can be delayed, and runs may be
 dropped entirely during peak load. Detection latency is therefore best-effort,
 typically 10 to 20 minutes but occasionally worse.
