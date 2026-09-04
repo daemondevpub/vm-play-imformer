@@ -2,7 +2,7 @@ const DEFAULTS = {
   sheetTab: 'Apps',
   playRegion: 'US',
   concurrency: 20,
-  metaApiVersion: 'v21.0',
+  metaApiVersion: 'v25.0',
   templateLanguage: 'en',
   templateAdded: 'play_store_app_added',
   templateRemoved: 'play_store_app_removed',
