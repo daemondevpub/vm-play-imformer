@@ -225,6 +225,46 @@ test('a message that fails for one recipient still counts as a failure', async (
   assert.equal(result.summary.sendFailures, 1);
 });
 
+test('suppressed alerts record the flip in full but send nothing', async () => {
+  const s = stubs({
+    values: [['com.vasu.app', '', '', 'pending', '', '', '', 'live']],
+    statuses: { 'com.vasu.app': 200 },
+    details: { 'com.vasu.app': { appName: 'Vasu App Name', developer: 'VASU COMPANY LLC' } },
+  });
+  const result = await runOnce({ config: baseConfig({ suppressAlerts: true }), ...s, now });
+
+  assert.equal(s.sent.length, 0, 'no messages are sent');
+
+  // Unlike dry run, the flip IS persisted. That is the whole point: adopt the
+  // current state once, so later runs only alert on genuine changes.
+  const row = s.written[0].rows[0];
+  assert.equal(row.status, 'live');
+  assert.equal(row.appName, 'Vasu App Name');
+  assert.equal(row.developer, 'VASU COMPANY LLC');
+  assert.equal(row.firstLive, '2026-09-03 14:51');
+  assert.equal(row.pendingFlip, '');
+
+  assert.equal(result.summary.flipped, 1);
+  assert.equal(result.summary.sent, 0);
+  assert.equal(result.summary.sendFailures, 0);
+  assert.equal(result.exitCode, 0, 'suppressing is not a failure');
+});
+
+test('suppressed alerts also record removals', async () => {
+  const s = stubs({
+    values: [
+      ['com.vasu.app', 'Vasu App Name', 'VASU COMPANY LLC', 'live', '2026-08-14 09:20', '', '', 'removed'],
+    ],
+    statuses: { 'com.vasu.app': 404 },
+  });
+  const result = await runOnce({ config: baseConfig({ suppressAlerts: true }), ...s, now });
+
+  assert.equal(s.sent.length, 0);
+  assert.equal(s.written[0].rows[0].status, 'removed');
+  assert.equal(s.written[0].rows[0].lastRemoved, '2026-09-03 14:51');
+  assert.equal(result.exitCode, 0);
+});
+
 test('the summary never contains a package name, app name or developer', async () => {
   const s = stubs({
     values: [['com.vasu.app', 'Vasu App Name', 'VASU COMPANY LLC', 'live', '', '', '', '']],

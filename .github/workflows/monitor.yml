@@ -39,3 +39,7 @@ jobs:
           PLAY_REGION: ${{ vars.PLAY_REGION }}
           CONCURRENCY: ${{ vars.CONCURRENCY }}
           SHEET_TAB: ${{ vars.SHEET_TAB }}
+          # One-time bootstrap. Set the repository variable SUPPRESS_ALERTS to
+          # "true", let a run complete, then DELETE the variable. State changes
+          # are recorded but no WhatsApp message is sent.
+          SUPPRESS_ALERTS: ${{ vars.SUPPRESS_ALERTS }}

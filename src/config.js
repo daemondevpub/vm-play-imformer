@@ -60,8 +60,14 @@ function parseRecipients(raw) {
 export function loadConfig(env = process.env) {
   const dryRun = String(env.DRY_RUN ?? '').toLowerCase() === 'true';
 
+  // Bootstrap switch: perform and persist state changes, but send nothing.
+  // Used once to adopt the current state of an existing app catalogue without
+  // firing an alert for every app that is already live.
+  const suppressAlerts = String(env.SUPPRESS_ALERTS ?? '').toLowerCase() === 'true';
+
   const config = {
     dryRun,
+    suppressAlerts,
     sheetId: required(env, 'SHEET_ID'),
     sheetTab: env.SHEET_TAB?.trim() || DEFAULTS.sheetTab,
     serviceAccount: parseServiceAccount(required(env, 'GOOGLE_SERVICE_ACCOUNT_JSON')),

@@ -35,6 +35,20 @@ GOOGLE_SERVICE_ACCOUNT_JSON="$(cat service-account.json)" \
 node src/index.js
 ```
 
+## Adopting an existing catalogue
+
+The first time you point this at a sheet of apps that are already live, every
+one of them would flip to `live` and fire an alert. To adopt the current state
+silently instead:
+
+1. Add a repository **variable** (not a secret) `SUPPRESS_ALERTS` set to `true`.
+2. Let two runs complete, so every app is marked and then confirmed.
+3. **Delete the variable.**
+
+State changes are recorded to the sheet as normal, including app names and
+developer accounts, but no message is sent. From then on you only get alerts for
+genuine changes.
+
 ## Privacy note
 
 This repository is public so that Actions minutes are free. Nothing sensitive

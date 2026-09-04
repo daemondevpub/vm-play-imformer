@@ -47,6 +47,13 @@ test('dry run does not require Meta credentials', () => {
   assert.deepEqual(config.recipients, []);
 });
 
+test('suppressAlerts defaults to false and reads SUPPRESS_ALERTS', () => {
+  assert.equal(loadConfig(baseEnv).suppressAlerts, false);
+  assert.equal(loadConfig({ ...baseEnv, SUPPRESS_ALERTS: 'true' }).suppressAlerts, true);
+  assert.equal(loadConfig({ ...baseEnv, SUPPRESS_ALERTS: 'TRUE' }).suppressAlerts, true);
+  assert.equal(loadConfig({ ...baseEnv, SUPPRESS_ALERTS: 'false' }).suppressAlerts, false);
+});
+
 test('rejects a missing sheet id', () => {
   const env = { ...baseEnv };
   delete env.SHEET_ID;

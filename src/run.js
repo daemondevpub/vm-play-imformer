@@ -93,8 +93,10 @@ export async function runOnce({ config, sheets, whatsapp, playstore, logger, now
         `${event.countBefore} -> ${event.countAfter}`,
     );
 
+    // Suppressed alerts still count as delivered, so the flip is persisted.
+    // That is the difference from a dry run, which persists nothing.
     let delivered = true;
-    if (!config.dryRun) {
+    if (!config.dryRun && !config.suppressAlerts) {
       for (const to of config.recipients) {
         const outcome = await whatsapp.sendTemplate({
           to,
@@ -161,6 +163,11 @@ export async function runOnce({ config, sheets, whatsapp, playstore, logger, now
       `changed ${summary.flipped} · messages ${summary.sent}`,
   );
 
+  if (config.suppressAlerts && flipped > 0) {
+    logger.warn(
+      `SUPPRESS_ALERTS is on: ${flipped} state change(s) recorded without sending any message`,
+    );
+  }
   if (canaryBroken) {
     logger.error('canary listing resolved as live; removal detection may be broken');
   }

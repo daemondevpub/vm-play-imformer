@@ -12,6 +12,9 @@ async function main() {
   if (config.dryRun) {
     logger.info('DRY RUN: no messages will be sent and the sheet will not be written');
   }
+  if (config.suppressAlerts) {
+    logger.info('SUPPRESS_ALERTS: changes will be recorded to the sheet but no message sent');
+  }
 
   const sheets = createSheetsClient({
     serviceAccount: config.serviceAccount,
