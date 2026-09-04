@@ -234,12 +234,22 @@ activity for 60 days. A weekly heartbeat workflow commits a timestamp file to
 prevent this. GitHub also emails a warning before disabling; that email should
 not be ignored, as bot commits are not always sufficient to reset the timer.
 
-**Canary row.** The sheet carries one package name that is known never to exist
-(for example `com.canary.doesnotexist.monitor`). It must always read `removed`.
-If it ever reads `live`, Play Store has started answering `200` for missing
-listings and every removal detection in the system is silently broken. The run
-exits non-zero in that case, which triggers GitHub's failure email. The canary
-is excluded from developer counts and never sends a WhatsApp message.
+**Canary row (optional).** The sheet may carry one package name known never to
+exist, for example `com.canary.doesnotexist.monitor`. Its check result must
+always be `gone`. If it ever comes back `exists`, Play Store has started
+answering `200` for missing listings and every removal detection in the system
+is silently broken; the run exits non-zero, which triggers GitHub's failure
+email.
+
+The check is on the raw result, not on the status column, so the canary row
+stays at status `pending` forever. That is correct: a package that has never
+been live and is still absent is treated as unpublished, not removed. The
+canary is excluded from developer counts and never sends a WhatsApp message.
+
+If no row matches the configured canary package the check simply never fires,
+so omitting the canary needs no code change. Tracked apps that happen to be
+unpublished are not a substitute, because any of them may legitimately go live
+at any time and so cannot serve as an invariant.
 
 **Throttling.** Roughly 1000 requests every 10 minutes go to Google from shared
 GitHub runner IPs. Concurrency is capped (default 20) with a browser-like
