@@ -25,7 +25,7 @@ test('applies documented defaults', () => {
   assert.equal(config.concurrency, 20);
   assert.equal(config.templateAdded, 'play_store_app_added');
   assert.equal(config.templateRemoved, 'play_store_app_removed');
-  assert.equal(config.templateLanguage, 'en_US');
+  assert.equal(config.templateLanguage, 'en');
   assert.equal(config.canaryPackage, 'com.canary.doesnotexist.monitor');
 });
 
