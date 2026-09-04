@@ -19,18 +19,20 @@ test('a pending app that is absent clears a stale marker', () => {
   assert.deepEqual(decide({ status: 'pending', result: GONE, pendingFlip: 'live' }), { action: 'clear' });
 });
 
-test('a pending app seen once is only marked, not flipped', () => {
+test('a pending app flips to live on a single sighting', () => {
   assert.deepEqual(decide({ status: 'pending', result: EXISTS, pendingFlip: '' }), {
-    action: 'mark',
+    action: 'flip',
     to: 'live',
   });
 });
 
-test('a pending app seen twice flips to live', () => {
-  assert.deepEqual(decide({ status: 'pending', result: EXISTS, pendingFlip: 'live' }), {
-    action: 'flip',
-    to: 'live',
-  });
+test('a stale marker does not delay an addition', () => {
+  for (const pendingFlip of ['', 'live', 'removed']) {
+    assert.deepEqual(decide({ status: 'pending', result: EXISTS, pendingFlip }), {
+      action: 'flip',
+      to: 'live',
+    });
+  }
 });
 
 test('a live app missing once is only marked', () => {
@@ -52,12 +54,26 @@ test('a live app that is still present clears a stale marker', () => {
   assert.deepEqual(decide({ status: 'live', result: EXISTS, pendingFlip: '' }), { action: 'none' });
 });
 
-test('a removed app returning twice flips back to live', () => {
+test('a removed app returning flips back to live immediately', () => {
   assert.deepEqual(decide({ status: 'removed', result: EXISTS, pendingFlip: '' }), {
-    action: 'mark',
+    action: 'flip',
     to: 'live',
   });
-  assert.deepEqual(decide({ status: 'removed', result: EXISTS, pendingFlip: 'live' }), {
+});
+
+test('confirmation is asymmetric: removals wait, additions do not', () => {
+  // A disappearance is only recorded on the first sighting.
+  assert.deepEqual(decide({ status: 'live', result: GONE, pendingFlip: '' }), {
+    action: 'mark',
+    to: 'removed',
+  });
+  // It takes a second consecutive sighting to apply.
+  assert.deepEqual(decide({ status: 'live', result: GONE, pendingFlip: 'removed' }), {
+    action: 'flip',
+    to: 'removed',
+  });
+  // An appearance applies straight away.
+  assert.deepEqual(decide({ status: 'removed', result: EXISTS, pendingFlip: '' }), {
     action: 'flip',
     to: 'live',
   });

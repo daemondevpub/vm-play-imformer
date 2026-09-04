@@ -102,18 +102,26 @@ Every app is in one of `pending`, `live`, `removed`, `invalid`.
 
 New rows in column A start as `pending` (never yet seen live).
 
-**A change must be observed twice in a row before it is applied.** Column H holds
-the first, unconfirmed observation. This costs one extra cycle of latency (so
-up to about 20 minutes end to end) and eliminates false alarms from transient
-failures.
+**Confirmation is asymmetric.**
+
+A **removal** must be observed twice in a row before it is applied. Column H
+holds the first, unconfirmed observation, and the next run confirms it. A
+transient 404 from a network hiccup or a throttle is exactly the failure that
+must not be mistaken for a takedown, and that costs one extra cycle of latency.
+
+An **addition** applies on a single sighting. A `200` cannot be a transient
+false positive the way a `404` can, and the flip is separately gated on the
+store page parsing as a genuine app page carrying both a title and a developer
+link. Requiring a second run would only add latency to the common case, which
+at 10 to 20 new listings a day is most of the traffic.
 
 | Current | Check result | Action |
 | --- | --- | --- |
-| `pending` | exists ×2 | → `live`, send **ADDED** |
+| `pending` | exists | → `live`, send **ADDED** |
 | `pending` | gone | stay `pending`, no alert (not yet published) |
 | `live` | gone ×2 | → `removed`, send **REMOVED** |
 | `live` | exists | clear H |
-| `removed` | exists ×2 | → `live`, send **ADDED** |
+| `removed` | exists | → `live`, send **ADDED** |
 | `removed` | gone | clear H |
 | any | unknown | no change, retry next run |
 
@@ -290,7 +298,10 @@ WhatsApp nor the Sheet.
 ## Known limitations
 
 1. Cannot distinguish unlisted from suspended from self-unpublished.
-2. Up to ~20 minutes of detection latency by design, more if GitHub's cron lags.
+2. Detection latency is one scheduling interval for an addition and two for a
+   removal. GitHub's scheduler is best effort and measured 11 to 15 minutes in
+   practice against a 5-minute cron, so expect roughly 13 minutes for an
+   addition and 26 for a removal.
 3. Depends on Meta's developer test number, which is officially a development
    facility rather than a guaranteed-forever product. Swapping senders is a
    configuration change, not a rewrite.

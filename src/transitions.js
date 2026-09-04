@@ -5,9 +5,17 @@ const UNKNOWN_DEVELOPER = 'Unknown';
 /**
  * Decides what a single row should do given one check result.
  *
- * A state change is applied only when the same observation has been seen on two
- * consecutive runs. The first observation is recorded in the row's pendingFlip
- * marker; the second confirms it.
+ * Confirmation is deliberately asymmetric:
+ *
+ * - A **removal** needs the same observation on two consecutive runs. A
+ *   transient 404 from a hiccup or a throttle is exactly the failure we must
+ *   never mistake for a takedown, so the first sighting is only recorded in the
+ *   row's pendingFlip marker and the second confirms it.
+ *
+ * - An **addition** applies on a single sighting. A 200 cannot be a transient
+ *   false positive the way a 404 can, and the flip is separately gated on the
+ *   store page parsing as a genuine app page with a title and a developer link.
+ *   Requiring a second run would only add latency to the common case.
  */
 export function decide({ status, result, pendingFlip }) {
   if (result === UNKNOWN) return { action: 'none' };
@@ -23,6 +31,10 @@ export function decide({ status, result, pendingFlip }) {
   if (status === desired) {
     return pendingFlip ? { action: 'clear' } : { action: 'none' };
   }
+
+  // Additions do not wait for a second run. Any stale marker is discarded by
+  // the flip, which always clears pendingFlip.
+  if (desired === 'live') return { action: 'flip', to: 'live' };
 
   if (pendingFlip === desired) return { action: 'flip', to: desired };
 

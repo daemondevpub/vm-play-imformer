@@ -45,18 +45,37 @@ function stubs({ values, statuses, details = {}, sendResult = { ok: true, error:
 
 const now = new Date('2026-09-03T09:21:00Z');
 
-test('a first sighting only marks the row and sends nothing', async () => {
+test('a first sighting of a disappearance only marks the row and sends nothing', async () => {
   const s = stubs({
-    values: [['com.vasu.app', '', '', 'pending', '', '', '', '']],
-    statuses: { 'com.vasu.app': 200 },
+    values: [['com.vasu.app', 'Vasu App Name', 'VASU COMPANY LLC', 'live', '', '', '', '']],
+    statuses: { 'com.vasu.app': 404 },
   });
   const result = await runOnce({ config: baseConfig(), ...s, now });
 
   assert.equal(s.sent.length, 0);
   assert.equal(result.summary.marked, 1);
   assert.equal(result.summary.flipped, 0);
-  assert.equal(s.written[0].rows[0].pendingFlip, 'live');
-  assert.equal(s.written[0].rows[0].status, 'pending');
+  assert.equal(s.written[0].rows[0].pendingFlip, 'removed');
+  assert.equal(s.written[0].rows[0].status, 'live', 'status is unchanged until confirmed');
+});
+
+test('an app appearing flips and alerts on its very first sighting', async () => {
+  const s = stubs({
+    values: [['com.vasu.app', '', '', 'pending', '', '', '', '']],
+    statuses: { 'com.vasu.app': 200 },
+    details: { 'com.vasu.app': { appName: 'Vasu App Name', developer: 'VASU COMPANY LLC' } },
+  });
+  const result = await runOnce({ config: baseConfig(), ...s, now });
+
+  assert.equal(result.summary.flipped, 1);
+  assert.equal(result.summary.marked, 0, 'additions never sit in the marker');
+  assert.equal(s.sent.length, 2);
+  assert.equal(s.sent[0].templateName, 'play_store_app_added');
+
+  const row = s.written[0].rows[0];
+  assert.equal(row.status, 'live');
+  assert.equal(row.firstLive, '2026-09-03 14:51');
+  assert.equal(row.pendingFlip, '');
 });
 
 test('a confirmed sighting flips to live and messages every recipient', async () => {
