@@ -1,4 +1,4 @@
-import { JWT } from 'google-auth-library';
+import { createGoogleAuth } from './googleauth.js';
 import { rowToCells } from './rows.js';
 
 const SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
@@ -8,11 +8,7 @@ const API_ROOT = 'https://sheets.googleapis.com/v4/spreadsheets';
 const LAST_RUN_CELL = 'J2';
 
 function defaultAuthFactory(serviceAccount) {
-  return new JWT({
-    email: serviceAccount.client_email,
-    key: serviceAccount.private_key,
-    scopes: [SCOPE],
-  });
+  return createGoogleAuth({ serviceAccount, scope: SCOPE });
 }
 
 /**

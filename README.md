@@ -24,7 +24,7 @@ Paste new package names into column A of the sheet. Nothing else.
 ## Running locally
 
 ```bash
-npm ci
+# No install step needed: this project has zero runtime dependencies.
 npm test
 
 # Dry run: reads the sheet and checks listings, but writes nothing and sends
