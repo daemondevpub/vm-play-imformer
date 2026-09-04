@@ -93,18 +93,27 @@ which go into GitHub in Part 3:
 
 1. Go to <https://developers.facebook.com> and log in with a Facebook account.
 2. Top right, **My Apps → Create App**.
-3. If asked for a use case, choose **Other**, then app type **Business**.
-4. Give it a name like `Play Store Monitor`, enter your contact email, and
-   create it. If it asks to link a Business portfolio, create one, it is free.
+3. On the **App details** step, give it a name like `Play Store Monitor` and
+   enter your contact email.
+4. On the **Use cases** step, choose the **Business messaging** filter on the
+   left, then select **"Connect with customers through WhatsApp"**.
+5. Work through the remaining **Business** and **Requirements** steps. If it
+   asks to link a Business portfolio, create one, it is free.
 
-### 2.2 Add the WhatsApp product
+> Do not choose **Other** or **Create an app without a use case**. "Other"
+> creates the app in Meta's old experience and Meta has flagged it as going
+> away. "Without a use case" gives you a bare app ID with no products attached,
+> so you would have to add WhatsApp by hand afterwards.
 
-1. On the app dashboard, find **WhatsApp** in the product list and click
-   **Set up**.
-2. You land on **WhatsApp → API Setup**.
-3. Meta automatically provisions a **test phone number** as the sender. You do
+### 2.2 Open API Setup and copy the phone number ID
+
+Selecting the WhatsApp use case attaches the WhatsApp product for you, so there
+is nothing to add manually.
+
+1. In the left menu of the app dashboard, open **WhatsApp → API Setup**.
+2. Meta automatically provisions a **test phone number** as the sender. You do
    not need a number of your own and you must not attach a payment method.
-4. Copy the **Phone number ID** shown under the "From" number. This is a long
+3. Copy the **Phone number ID** shown under the "From" number. This is a long
    numeric string. Save it to your notepad as the **Meta phone number ID**.
 
 > Copy the *Phone number ID*, not the phone number itself, and not the WhatsApp
