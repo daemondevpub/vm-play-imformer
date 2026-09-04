@@ -4,10 +4,10 @@ const DEFAULTS = {
   concurrency: 20,
   metaApiVersion: 'v25.0',
   // Must match the language chosen when the template was created in WhatsApp
-  // Manager. Plain "English" is en; "English (US)" is en_US. Meta treats them
+  // Manager. "English (US)" is en_US; plain "English" is en. Meta treats them
   // as different templates and rejects a mismatch. Both project templates were
-  // created as plain English.
-  templateLanguage: 'en',
+  // created as English (US).
+  templateLanguage: 'en_US',
   templateAdded: 'play_store_app_added',
   templateRemoved: 'play_store_app_removed',
   canaryPackage: 'com.canary.doesnotexist.monitor',
