@@ -141,11 +141,14 @@ this. You need a system-user token that never expires.
 
 1. Go to <https://business.facebook.com/settings> (Business Settings).
 2. Left sidebar, under Users, click **System users**.
-3. Click **Add**, name it `PlayStoreMonitorBot`, set role **Admin**, confirm.
+3. Click **Add**, name it `Listing Watcher`, set role **Admin**, confirm.
 
-   > Do not use hyphens. Meta's name policy rejects names with more than one or
-   > two, so `play-store-monitor-bot` fails. The name is cosmetic and is not
-   > referenced by the code.
+   > Meta applies its profile-name policy here and rejects most obvious choices.
+   > `play-store-monitor-bot` fails for too many hyphens, `PlayStoreMonitorBot`
+   > for too many capitals, and `Play Store Monitor` is rejected outright,
+   > almost certainly because "Play Store" is a Google trademark. Ordinary
+   > title-cased words with no brand names work. The name is cosmetic and is
+   > never referenced by the code, so any accepted name is fine.
 4. Select that system user, click **Assign assets**.
    - Choose **Apps**, pick your app, enable **Full control / Manage app**. Save.
    - Click **Assign assets** again, choose **WhatsApp accounts**, pick your
