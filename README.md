@@ -3,6 +3,7 @@
 Watches a list of Google Play packages and sends a WhatsApp message when a
 listing appears or disappears.
 
+- **Day-to-day operation and troubleshooting:** [`RUNBOOK.md`](RUNBOOK.md)
 - **Design:** [`docs/superpowers/specs/2026-09-03-play-store-monitor-design.md`](docs/superpowers/specs/2026-09-03-play-store-monitor-design.md)
 - **One-time setup:** [`docs/setup-guide.md`](docs/setup-guide.md)
 
