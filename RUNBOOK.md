@@ -8,6 +8,7 @@ How to operate the monitor day to day, and what to do when something breaks.
 | --- | --- |
 | The sheet | [Play Store Monitor](https://docs.google.com/spreadsheets/d/1xW4Vysydlj8E13hHduALupTI2shbg0Q10kSvZckf6TE/edit) |
 | Run history and logs | [Actions tab](https://github.com/daemondevpub/vm-play-imformer/actions) |
+| Watchdog (keeps the schedule alive) | [setup and troubleshooting](docs/apps-script/README.md) |
 | Secrets | [Repository secrets](https://github.com/daemondevpub/vm-play-imformer/settings/secrets/actions) |
 | Templates | [WhatsApp Manager](https://business.facebook.com/wa/manage/message-templates/?waba_id=1570347831235441) |
 | Recipients and test sends | [API Setup](https://developers.facebook.com/apps/1392401916192323/use_cases/customize/api-testing-v2/?product_route=whatsapp-business) |
@@ -87,9 +88,13 @@ themselves. This is why the emails repeat every few minutes until resolved.
 
 Check `J2` in the sheet.
 
-- **J2 is stale** — the schedule stopped. Most likely GitHub disabled it after
-  60 days of repository inactivity; there is a warning email. Re-enable the
-  workflow in the Actions tab.
+- **J2 is stale** — the schedule stopped. In order of likelihood:
+  1. **GitHub silently stopped firing the schedule.** It shows the workflow as
+     active and its status page reports no incident, but no runs start. This has
+     happened, for over four hours. The [watchdog](docs/apps-script/README.md)
+     exists to cover it; if J2 is stale, check the watchdog is still installed.
+  2. GitHub disabled the schedule after 60 days of repository inactivity. There
+     is a warning email. Re-enable the workflow in the Actions tab.
 - **J2 is current** — the monitor is running and genuinely has nothing to report.
 - **J2 is current but you expected an alert** — check the `SUPPRESS_ALERTS`
   repository variable is deleted. If it exists and is `true`, everything is
