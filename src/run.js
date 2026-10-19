@@ -3,6 +3,7 @@ import { parseRows } from './rows.js';
 import { decide, sequenceCounts } from './transitions.js';
 import { buildMessage } from './messages.js';
 import { formatIstDateTime } from './time.js';
+import { resolveRenames, applyRenames } from './renames.js';
 
 /** A run where most checks are inconclusive is a broken run, not a quiet one. */
 const UNKNOWN_FAILURE_RATIO = 0.5;
@@ -68,6 +69,20 @@ export async function runOnce({ config, sheets, whatsapp, playstore, logger, now
       logger.detail(`could not parse app page for ${flip.packageName}, retrying next run`);
     }
   }
+
+  // A developer account rename looks exactly like a brand new account, because
+  // the account has no stable id. Resolve it before counting, otherwise the
+  // renamed account reports "0 -> 1" instead of continuing from its real total.
+  const renames = await resolveRenames({
+    rows,
+    flips,
+    details,
+    playstore,
+    region: config.playRegion,
+    canaryPackage: config.canaryPackage,
+    logger,
+  });
+  const renamedPackages = applyRenames({ rows, changedRows, renames });
 
   const events = sequenceCounts({
     rows,
@@ -155,6 +170,8 @@ export async function runOnce({ config, sheets, whatsapp, playstore, logger, now
     sent,
     sendFailures,
     canaryBroken,
+    renamedAccounts: renames.size,
+    renamedRows: renamedPackages.length,
   };
 
   logger.info(
@@ -166,6 +183,12 @@ export async function runOnce({ config, sheets, whatsapp, playstore, logger, now
   if (config.suppressAlerts && flipped > 0) {
     logger.warn(
       `SUPPRESS_ALERTS is on: ${flipped} state change(s) recorded without sending any message`,
+    );
+  }
+  if (renames.size > 0) {
+    logger.info(
+      `resynced ${renames.size} renamed developer account(s) across ` +
+        `${renamedPackages.length} row(s)`,
     );
   }
   if (canaryBroken) {

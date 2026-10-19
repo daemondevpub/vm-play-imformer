@@ -295,3 +295,74 @@ test('the summary never contains a package name, app name or developer', async (
   assert.doesNotMatch(serialized, /Vasu App Name/);
   assert.doesNotMatch(serialized, /VASU COMPANY/);
 });
+
+test('a renamed developer account keeps its running total', async () => {
+  // Eight apps already live under the old name, plus a ninth about to appear.
+  const values = Array.from({ length: 8 }, (_, i) => [
+    `com.manchak.app${i}`,
+    `App ${i}`,
+    'Manchak Developer',
+    'live',
+    '2026-08-01 10:00',
+    '',
+    '',
+    '',
+  ]);
+  values.push(['com.manchak.new', '', '', 'pending', '', '', '', '']);
+
+  const statuses = Object.fromEntries(values.map(([pkg]) => [pkg, 200]));
+
+  // The account has been renamed, so every page now reports the new name.
+  const details = Object.fromEntries(
+    values.map(([pkg]) => [pkg, { appName: pkg === 'com.manchak.new' ? 'New App' : 'x', developer: 'Manoj Developer' }]),
+  );
+
+  const s = stubs({ values, statuses, details });
+  const result = await runOnce({ config: baseConfig(), ...s, now });
+
+  // The reported bug: this used to say 0 -> 1.
+  assert.deepEqual(s.sent[0].params.slice(0, 5), [
+    'Manoj Developer',
+    '8',
+    '9',
+    'New App',
+    'com.manchak.new',
+  ]);
+  assert.equal(s.sent.length, 2, 'one message per recipient');
+
+  assert.equal(result.summary.renamedAccounts, 1);
+  assert.equal(result.summary.renamedRows, 8);
+
+  // All eight existing rows are resynced to the new name, plus the new one.
+  const written = s.written[0].rows;
+  assert.equal(written.length, 9);
+  assert.ok(
+    written.every((row) => row.developer === 'Manoj Developer'),
+    'every row carries the new developer name',
+  );
+  // The rename must not disturb anything else on those rows.
+  const existing = written.find((row) => row.packageName === 'com.manchak.app0');
+  assert.equal(existing.status, 'live');
+  assert.equal(existing.firstLive, '2026-08-01 10:00');
+});
+
+test('a genuinely new developer account still starts from zero', async () => {
+  const values = [
+    ['com.manchak.app0', 'App 0', 'Manchak Developer', 'live', '2026-08-01 10:00', '', '', ''],
+    ['com.brandnew.app', '', '', 'pending', '', '', '', ''],
+  ];
+  const s = stubs({
+    values,
+    statuses: { 'com.manchak.app0': 200, 'com.brandnew.app': 200 },
+    details: {
+      // The existing app still reports its own name, so nothing was renamed.
+      'com.manchak.app0': { appName: 'App 0', developer: 'Manchak Developer' },
+      'com.brandnew.app': { appName: 'Brand New', developer: 'Fresh Studio' },
+    },
+  });
+
+  const result = await runOnce({ config: baseConfig(), ...s, now });
+
+  assert.deepEqual(s.sent[0].params.slice(0, 3), ['Fresh Studio', '0', '1']);
+  assert.equal(result.summary.renamedAccounts, 0);
+});

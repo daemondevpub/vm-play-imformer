@@ -128,6 +128,32 @@ at 10 to 20 new listings a day is most of the traffic.
 An app going live for the first time and an app coming back after removal both
 send the ADDED message. They are not distinguished.
 
+### Developer account renames
+
+A developer account has no stable identifier. The link on a store page is
+`/store/apps/developer?id=<the display name>`, so renaming the account changes
+its id too. There is nothing immutable to key counts on.
+
+A rename therefore looks like a brand new account: every row still carries the
+old name, so the renamed account appears to have no live apps and its next
+listing reports "0 to 1" instead of continuing from its real total.
+
+Renames are detected rather than looked up. When an app goes live under a
+developer name that no live row claims, one app from each known account is
+re-fetched. If any of them now reports the new name, that account was renamed,
+and every row belonging to it is rewritten to the new name before counts are
+taken. Probing is capped at 30 accounts per run and costs nothing on a normal
+run, because it only happens when an unfamiliar name actually appears.
+
+Two consequences worth knowing:
+
+- A rename is noticed when the account's **next app goes live**, not at the
+  moment it happens. Until then the sheet shows the old name. Counts stay
+  correct throughout, because they are consistent with whatever name is
+  recorded.
+- A genuinely new account is indistinguishable from a rename until the probes
+  come back, so one new account costs one round of probes, once.
+
 ### Learning the developer account
 
 When an app flips to `live`, and only then, the full page is fetched once to read

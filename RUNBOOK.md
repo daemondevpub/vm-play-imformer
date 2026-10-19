@@ -29,6 +29,22 @@ entire process.**
 Within about 13 minutes the app is being checked. It sits at `pending` until its
 listing appears, then flips to `live` and you both get an ADDED message.
 
+## Renaming a developer account on Play Store
+
+Just rename it. Nothing to do here.
+
+The monitor notices when the **next app goes live** under that account: it
+re-reads one app from each account it knows, spots which one now answers to the
+new name, and rewrites every row for it. The alert then continues from the real
+total, for example `8 -> 9`, rather than restarting at `0 -> 1`.
+
+Until that next app appears, the sheet still shows the old name. Counts remain
+correct either way. If you want the sheet brought up to date sooner, publishing
+anything under that account does it.
+
+The run log reports `resynced N renamed developer account(s) across M row(s)`
+when this happens.
+
 ## Removing an app from monitoring
 
 Delete its row. Rows are matched by package name, not position, so deleting or
